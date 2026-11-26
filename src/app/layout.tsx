@@ -6,7 +6,7 @@ const heading = Bricolage_Grotesque({ subsets: ["latin"], variable: "--font-head
 const body = Figtree({ subsets: ["latin"], variable: "--font-body" });
 
 export const metadata: Metadata = {
-  title: "Dress Code Decoder",
+  title: "Dress Code Decoder · what do I wear?",
   description: "Plain-English guidance on what to wear for any dress code.",
 };
 

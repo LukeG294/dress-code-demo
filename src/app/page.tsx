@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AmbiguousResult } from "@/components/AmbiguousResult";
 import { DecodedResult } from "@/components/DecodedResult";
 import { DecoderForm } from "@/components/DecoderForm";
@@ -14,6 +14,17 @@ type State =
 
 export default function Home() {
   const [state, setState] = useState<State>({ view: "idle" });
+  const results = useRef<HTMLDivElement>(null);
+
+  // On small screens results start below the fold, so bring them into view.
+  // Left alone when they're already near the top, to avoid needless jumps.
+  useEffect(() => {
+    if (state.view === "idle" || !results.current) return;
+    const { top } = results.current.getBoundingClientRect();
+    if (top >= 0 && top < window.innerHeight * 0.4) return;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    results.current.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+  }, [state.view]);
 
   async function run(request: DecodeRequest) {
     setState({ view: "loading" });
@@ -44,7 +55,12 @@ export default function Home() {
 
       <DecoderForm loading={state.view === "loading"} onSubmit={run} />
 
-      <div className="mt-10" aria-live="polite">
+      {/* The minimum height leaves room to scroll a short result to the top. */}
+      <div
+        ref={results}
+        className={`mt-10 scroll-mt-4 ${state.view === "idle" ? "" : "min-h-svh"}`}
+        aria-live="polite"
+      >
         {state.view === "loading" && (
           <div className="animate-pulse space-y-3">
             <p className="sr-only">Decoding your dress code</p>
