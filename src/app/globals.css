@@ -20,6 +20,13 @@
 @utility sticker {
   border: 2px solid var(--color-ink);
   box-shadow: 4px 4px 0 var(--color-ink);
+  /* An outline ring ignores the offset shadow and looks lopsided, so focus recolors both instead.
+     The transparent outline still shows in high-contrast mode. */
+  &:focus-visible {
+    outline: 3px solid transparent;
+    border-color: var(--color-cobalt);
+    box-shadow: 4px 4px 0 var(--color-cobalt);
+  }
 }
 
 /* Buttons lift on hover and press flat on click. */
@@ -30,6 +37,11 @@
   &:hover:enabled {
     transform: translate(-1px, -1px);
     box-shadow: 4px 4px 0 var(--color-ink);
+  }
+  &:focus-visible:enabled {
+    outline: 3px solid transparent;
+    border-color: var(--color-cobalt);
+    box-shadow: 5px 5px 0 var(--color-cobalt);
   }
   &:active:enabled {
     transform: translate(3px, 3px);
