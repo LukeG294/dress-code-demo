@@ -19,10 +19,15 @@ export class DecodeError extends Error {}
 type CreateMessage = (params: Anthropic.Beta.MessageCreateParamsNonStreaming) => Promise<Anthropic.Beta.BetaMessage>;
 
 let client: Anthropic | undefined;
-const callApi: CreateMessage = (params) => {
+const callApi: CreateMessage = async (params) => {
   // One automatic retry on timeouts, rate limits and server errors.
   client ??= new Anthropic({ maxRetries: 1, timeout: 25_000 });
-  return client.beta.messages.create(params);
+  const response = await client.beta.messages.create(params);
+  const { input_tokens, cache_creation_input_tokens, cache_read_input_tokens, output_tokens } = response.usage;
+  console.log(
+    `[usage] input=${input_tokens} cache_write=${cache_creation_input_tokens} cache_read=${cache_read_input_tokens} output=${output_tokens}`,
+  );
+  return response;
 };
 
 export async function decode(request: DecodeRequest, create: CreateMessage = callApi): Promise<Decode> {
@@ -35,7 +40,8 @@ export async function decode(request: DecodeRequest, create: CreateMessage = cal
       model,
       // Thinking counts toward max_tokens, so leave room beyond the reply itself.
       max_tokens: 4000,
-      system: SYSTEM_PROMPT,
+      // The tool and system prompt never change, so cache them to cut the cost of repeat requests.
+      system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
       messages,
       tools: [respondTool],
       // This model rejects forced tool choice and custom temperature.

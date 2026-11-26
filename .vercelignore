@@ -1,0 +1,6 @@
+# Local-only files that must not be uploaded with a deployment.
+.env*
+brief/
+SPEC.md
+CLAUDE.md
+.claude/
