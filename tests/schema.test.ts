@@ -8,7 +8,7 @@ describe("schemas", () => {
   });
 
   it("requires the field that matches the ambiguous mode", () => {
-    const ask = EXAMPLES.find((example) => example.input === "nostalgic festival fits")!.result;
+    const ask = EXAMPLES.find((example) => example.input === "decades party")!.result;
     expect(decodeSchema.safeParse({ ...ask, mode: "options" }).success).toBe(false);
   });
 

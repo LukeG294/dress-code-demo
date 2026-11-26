@@ -43,7 +43,7 @@ describe("decode", () => {
 
   it("does not allow a second clarification round", async () => {
     const create = vi.fn().mockResolvedValueOnce(reply(ambiguous)).mockResolvedValue(reply(good));
-    const answered = { ...request, clarification: { question: "Which era?", answer: "Y2K" } };
+    const answered = { ...request, clarification: { question: "Which decade?", answer: "1970s" } };
     expect(await decode(answered, create)).toEqual(good.result);
     expect(create).toHaveBeenCalledTimes(2);
   });
