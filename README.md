@@ -4,7 +4,7 @@ Type an event dress code, such as "smart casual recruiting mixer", and get clear
 
 **Live:** https://dress-code-decoder-one.vercel.app
 
-![The app asking which era "nostalgic festival fits" refers to](docs/screenshot.jpg)
+![A result for "smart casual recruiting mixer": a formality meter, outfit tabs and one icon tile per garment](docs/screenshot.jpg)
 
 ## How it works
 
@@ -32,6 +32,7 @@ The app is built with Next.js (App Router), TypeScript and Tailwind CSS.
 | `src/lib/schema.ts` | The contract shared by the API, the model and the UI |
 | `src/lib/prompt.ts` | System prompt, ambiguity policy and examples |
 | `src/lib/anthropic.ts` | Model call, validation and repair retry |
+| `src/components/GarmentIcon.tsx` | One line icon per garment type |
 | `src/lib/rateLimit.ts` | Per-visitor request limit |
 | `src/app/api/decode/route.ts` | The one API endpoint |
 
@@ -39,9 +40,11 @@ The app is built with Next.js (App Router), TypeScript and Tailwind CSS.
 
 **Structured output through a tool.** The UI needs to know which of three cases it has, so the model answers by calling one tool whose input follows a schema:
 
-- `decoded`: a one-line translation, formality from 1 to 5, two or three outfits, do and don't lists, a safe bet and the assumptions made.
+- `decoded`: a short headline, formality from 1 to 5, two or three outfits, do and don't tags, a safe bet and the assumptions made.
 - `ambiguous`: why it's unclear, then either a question with options or two to three interpretations, plus a "hedge" outfit that works across them.
 - `off_topic`: a short redirect.
+
+**Made to scan, not read.** Each garment has a type from a fixed list, which picks its icon, and a label of a few words. The prompt sets word limits and the schema caps length, so replies can't drift into paragraphs. Icons were chosen over photos: they're consistent, load instantly and don't show a particular body or gender.
 
 **Two layers of checking.** Strict mode constrains the shape of the tool input. It can't express limits such as "two or three outfits" or "`ask` needs a question", so zod checks those. A failed check is sent back to the model once with the error.
 
@@ -70,18 +73,18 @@ There is only one clarification round. Once a question is answered, the code rej
 **Ask**
 
 > **In:** nostalgic festival fits  
-> **Why unclear:** "Nostalgic" points to a past era or aesthetic without naming one, and each choice needs different clothes.  
-> **Question:** Which era or vibe should the nostalgia be? `1970s boho` `1990s grunge` `Y2K` `Not sure`  
-> **Hedge:** Relaxed jeans or shorts, a vintage-style graphic tee or soft printed top, a light layer and broken-in shoes.
+> **Why unclear:** Nostalgic could mean any era; each needs different clothes  
+> **Question:** Which era are you channeling? `70s boho` `90s grunge` `Y2K` `Not sure`  
+> **Hedge:** vintage band tee, denim cutoffs, worn-in sneakers, crossbody bag
 
 **Options**
 
-> **In:** dress to impress  
-> **Why unclear:** It doesn't say what kind of event it is.  
-> **Night out or party:** a sharp outfit with a bold color, shine or a statement piece.  
-> **Professional impression:** tailored, neat pieces in classic colors.  
-> **Dressy occasion:** a cocktail-level dress or suit.  
-> **Hedge:** Tailored dark trousers or a knee-length dress, a crisp top or fitted jacket, polished shoes and one standout accessory.
+> **In:** themed party, host says go all out  
+> **Why unclear:** Theme unknown; costume changes everything  
+> **Costume party** (theme is a character or era): bold themed jacket, matching trousers, costume prop  
+> **Color or glam** (theme is a color or sparkle): sequin or bright dress, statement shoes, bold jewelry  
+> **Dressy theme night** (theme is Hollywood or masquerade): dark tailored jacket, sharp trousers, mask or accent  
+> **Hedge:** bold solid shirt, dark tailored trousers, comfortable dressy shoes, themed accessory
 
 ## Evals
 
@@ -93,10 +96,14 @@ There is only one clarification round. Once a question is answered, the code rej
 | Examples replaced with unrelated phrases | 18/20 |
 | Added a rule for unnamed eras and aesthetics (two runs) | 19/20, 18/20 |
 | Same prompt, two expected results changed (three runs) | 20/20, 20/20, 19/20 |
+| Shorter, icon-based output | 19/20 |
+| Added a rule for effort-only phrases | 20/20 |
 
 **Failure found and fixed:** once its copied example was gone, "nostalgic festival fits" was decoded as if the era were known. A general rule in the ambiguity policy fixed it (6 of 6 repeat runs asked which era).
 
-**Expectations changed after seeing results:** "festive" and "come as you are but classy" were first expected to be ambiguous. The model decodes them with stated assumptions, and since their likely readings lead to similar outfits, that now counts as correct. The last row's higher score comes from this change, not from a better prompt.
+**Second failure found and fixed:** after the output was shortened, "dress to impress" was decoded as one outfit. A rule for phrases that ask for effort without naming an occasion fixed it (4 of 4 repeat runs asked).
+
+**Expectations changed after seeing results:** "festive" and "come as you are but classy" were first expected to be ambiguous. The model decodes them with stated assumptions, and since their likely readings lead to similar outfits, that now counts as correct. The higher score in that row comes from this change, not from a better prompt.
 
 **Known variance:** "festive" occasionally comes back as a clarifying question, which accounts for the 19/20 run.
 

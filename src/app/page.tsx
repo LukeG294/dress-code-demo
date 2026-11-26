@@ -34,26 +34,31 @@ export default function Home() {
 
   return (
     <main className="mx-auto max-w-xl px-4 py-10 sm:py-16">
-      <h1 className="text-3xl font-semibold">Dress Code Decoder</h1>
-      <p className="mt-2 mb-6 text-stone-600">Describe an event dress code and find out what to wear.</p>
+      <p className="sticker mb-5 inline-block -rotate-3 rounded-full bg-lilac px-4 py-1 text-sm font-bold">
+        ✦ no more guessing
+      </p>
+      <h1 className="text-5xl leading-[0.95] font-extrabold sm:text-6xl">
+        Dress code <span className="inline-block -rotate-2 rounded-lg bg-butter px-2">decoder</span>
+      </h1>
+      <p className="mt-4 mb-7 text-lg">Paste the invite wording. Get the fit.</p>
 
       <DecoderForm loading={state.view === "loading"} onSubmit={run} />
 
-      <div className="mt-8" aria-live="polite">
+      <div className="mt-10" aria-live="polite">
         {state.view === "loading" && (
           <div className="animate-pulse space-y-3">
             <p className="sr-only">Decoding your dress code</p>
-            <div className="h-6 w-3/4 rounded bg-stone-200" />
-            <div className="h-2 rounded bg-stone-200" />
-            <div className="h-28 rounded-xl bg-stone-200" />
-            <div className="h-28 rounded-xl bg-stone-200" />
+            <div className="h-8 w-3/4 rounded-full bg-lilac" />
+            <div className="h-3 rounded-full bg-butter" />
+            <div className="h-28 rounded-2xl bg-mint" />
+            <div className="h-28 rounded-2xl bg-sky" />
           </div>
         )}
 
         {state.view === "error" && (
-          <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4">
+          <div role="alert" className="sticker rounded-2xl bg-tomato p-4 font-medium">
             <p>{state.message}</p>
-            <button type="button" onClick={() => run(state.request)} className="mt-2 font-medium underline">
+            <button type="button" onClick={() => run(state.request)} className="mt-2 font-bold underline">
               Retry
             </button>
           </div>
@@ -61,7 +66,7 @@ export default function Home() {
 
         {state.view === "result" && (
           <>
-            <p className="mb-4 text-sm text-stone-500">
+            <p className="mb-3 text-sm font-medium text-ink/60">
               For “{state.request.description}”
               {state.request.clarification && `, ${state.request.clarification.answer}`}
             </p>
@@ -73,7 +78,7 @@ export default function Home() {
               />
             )}
             {state.result.status === "off_topic" && (
-              <p className="rounded-xl border border-stone-200 bg-white p-4">{state.result.message}</p>
+              <p className="sticker rounded-2xl bg-sky p-4 font-medium">{state.result.message}</p>
             )}
           </>
         )}

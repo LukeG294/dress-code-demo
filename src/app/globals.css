@@ -1,1 +1,57 @@
 @import "tailwindcss";
+
+@theme {
+  --color-paper: #fff7e8;
+  --color-ink: #1e1b18;
+  --color-tomato: #ff6542;
+  --color-cobalt: #3546c9;
+  --color-butter: #ffd95a;
+  --color-mint: #bfeccd;
+  --color-lilac: #d9cdfb;
+  --color-sky: #bfe0ff;
+}
+
+@theme inline {
+  --font-sans: var(--font-body), system-ui, sans-serif;
+  --font-display: var(--font-heading), system-ui, sans-serif;
+}
+
+/* The "sticker" look: a solid outline with a hard offset shadow. */
+@utility sticker {
+  border: 2px solid var(--color-ink);
+  box-shadow: 4px 4px 0 var(--color-ink);
+}
+
+/* Buttons lift on hover and press flat on click. */
+@utility pressable {
+  border: 2px solid var(--color-ink);
+  box-shadow: 3px 3px 0 var(--color-ink);
+  transition: transform 120ms, box-shadow 120ms;
+  &:hover:enabled {
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 var(--color-ink);
+  }
+  &:active:enabled {
+    transform: translate(3px, 3px);
+    box-shadow: 0 0 0 var(--color-ink);
+  }
+}
+
+@layer base {
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    text-transform: lowercase;
+    letter-spacing: -0.02em;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-cobalt);
+    outline-offset: 3px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

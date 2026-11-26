@@ -15,10 +15,13 @@ export function FormalityMeter({ level, label }: Formality) {
         className="flex gap-1"
       >
         {[1, 2, 3, 4, 5].map((step) => (
-          <span key={step} className={`h-2 flex-1 rounded-full ${step <= level ? "bg-stone-900" : "bg-stone-200"}`} />
+          <span
+            key={step}
+            className={`h-3 flex-1 rounded-full border-2 border-ink ${step <= level ? "bg-tomato" : "bg-white"}`}
+          />
         ))}
       </div>
-      <p className="mt-1 text-sm text-stone-600">
+      <p className="mt-1.5 text-sm font-bold">
         Formality {level}/5: {label}
       </p>
     </div>

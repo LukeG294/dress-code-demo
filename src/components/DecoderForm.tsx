@@ -6,7 +6,7 @@ import { EXAMPLE_PHRASES, ExampleChips } from "./ExampleChips";
 
 type Context = NonNullable<DecodeRequest["context"]>;
 
-const field = "mt-1 block w-full rounded-lg border border-stone-300 bg-white px-3 py-2";
+const field = "mt-1 block w-full rounded-xl border-2 border-ink bg-white px-3 py-2";
 
 export function DecoderForm({ loading, onSubmit }: { loading: boolean; onSubmit: (request: DecodeRequest) => void }) {
   const [description, setDescription] = useState("");
@@ -27,31 +27,31 @@ export function DecoderForm({ loading, onSubmit }: { loading: boolean; onSubmit:
 
   return (
     <form
-      className="space-y-4"
+      className="space-y-5"
       onSubmit={(event) => {
         event.preventDefault();
         submit(description);
       }}
     >
-      <div className="flex flex-col gap-2 sm:flex-row">
+      <div className="flex flex-col gap-3 sm:flex-row">
         <input
           aria-label="Dress code"
           value={description}
           onChange={(event) => setDescription(event.target.value)}
           placeholder={EXAMPLE_PHRASES[example]}
           maxLength={300}
-          className="min-w-0 flex-1 rounded-lg border border-stone-300 bg-white px-4 py-3"
+          className="sticker min-w-0 flex-1 rounded-full bg-white px-5 py-3 placeholder:text-ink/40"
         />
         <button
           type="submit"
           disabled={loading}
-          className="rounded-lg bg-stone-900 px-5 py-3 font-medium text-white disabled:opacity-50"
+          className="pressable rounded-full bg-tomato px-6 py-3 font-display text-lg font-extrabold lowercase disabled:opacity-60"
         >
           {loading ? "Decoding…" : "Decode"}
         </button>
       </div>
       {hint && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm font-bold text-cobalt">
           {hint}
         </p>
       )}
@@ -65,7 +65,7 @@ export function DecoderForm({ loading, onSubmit }: { loading: boolean; onSubmit:
       />
 
       <details className="text-sm">
-        <summary className="cursor-pointer text-stone-600">Add context (optional)</summary>
+        <summary className="cursor-pointer font-bold">Add context (optional)</summary>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           <label>
             Style lean
