@@ -88,7 +88,7 @@ There is only one clarification round. Once a question is answered, the code rej
 
 ## Evals
 
-`npm run eval` sends the 20 phrases in `evals/cases.json` to the real API (it needs `ANTHROPIC_API_KEY`). Each reply is validated against the schema, then checked for the expected status and, where given, a formality range.
+`npm run eval` sends the 32 phrases in `evals/cases.json` to the real API (it needs `ANTHROPIC_API_KEY`). Each reply is validated against the schema, then checked for the expected status and, where given, a formality range.
 
 | Prompt version | Passed |
 |---|---|
@@ -98,6 +98,18 @@ There is only one clarification round. Once a question is answered, the code rej
 | Same prompt, two expected results changed (three runs) | 20/20, 20/20, 19/20 |
 | Shorter, icon-based output | 19/20 |
 | Added a rule for effort-only phrases | 20/20 |
+
+The table covers the original 20 phrases.
+
+### Messy, real-world phrasing
+
+People rarely type clean dress codes, so 12 more phrases add typos, slang, emoji and rambling, such as "blk tie optnl", "idk its like a work thing but at a bar??" and "no cap what do i even wear 😭". On their first run, with no prompt changes, **12 of 12** got the expected status and formality range. They hadn't been used to tune the prompt.
+
+This was one run per phrase, checking status and formality only, not the quality of the outfits. The 12 have not yet been run together with the original 20.
+
+One gap it showed: for "fit check for grad", the reply assumed the person is a guest, though they could be the one graduating.
+
+### What the earlier runs caught
 
 **Failure found and fixed:** once its copied example was gone, "nostalgic festival fits" was decoded as if the era were known. A general rule in the ambiguity policy fixed it (6 of 6 repeat runs asked which era).
 
@@ -123,7 +135,7 @@ npm run dev                  # http://localhost:3000
 npm test           # unit tests, no API calls
 npm run typecheck
 npm run build
-npm run eval       # makes 20 billed API calls
+npm run eval       # makes 32 billed API calls
 ```
 
 ## Limitations
