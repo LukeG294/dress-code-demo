@@ -85,6 +85,7 @@ export default function Home() {
             <p className="mb-3 text-sm font-medium text-ink/60">
               For “{state.request.description}”
               {state.request.clarification && `, ${state.request.clarification.answer}`}
+              {state.request.style && ` · ${state.request.style}`}
             </p>
             {state.result.status === "decoded" && <DecodedResult result={state.result} />}
             {state.result.status === "ambiguous" && (

@@ -3,14 +3,11 @@
 import { useEffect, useState } from "react";
 import type { DecodeRequest } from "@/lib/schema";
 import { EXAMPLE_PHRASES, ExampleChips } from "./ExampleChips";
-
-type Context = NonNullable<DecodeRequest["context"]>;
-
-const field = "mt-1 block w-full rounded-xl border-2 border-ink bg-white px-3 py-2";
+import { StyleChoice } from "./StyleChoice";
 
 export function DecoderForm({ loading, onSubmit }: { loading: boolean; onSubmit: (request: DecodeRequest) => void }) {
   const [description, setDescription] = useState("");
-  const [context, setContext] = useState<Context>({});
+  const [style, setStyle] = useState<DecodeRequest["style"]>();
   const [hint, setHint] = useState("");
   const [example, setExample] = useState(0);
 
@@ -22,7 +19,7 @@ export function DecoderForm({ loading, onSubmit }: { loading: boolean; onSubmit:
   function submit(value: string) {
     if (value.trim().length < 3) return setHint("Type at least 3 characters, like \"beach wedding\".");
     setHint("");
-    onSubmit({ description: value.trim(), context });
+    onSubmit({ description: value.trim(), style });
   }
 
   return (
@@ -56,6 +53,8 @@ export function DecoderForm({ loading, onSubmit }: { loading: boolean; onSubmit:
         </p>
       )}
 
+      <StyleChoice value={style} onChange={setStyle} />
+
       <ExampleChips
         disabled={loading}
         onPick={(phrase) => {
@@ -63,50 +62,6 @@ export function DecoderForm({ loading, onSubmit }: { loading: boolean; onSubmit:
           submit(phrase);
         }}
       />
-
-      <details className="text-sm">
-        <summary className="cursor-pointer font-bold">Add context (optional)</summary>
-        <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          <label>
-            Style lean
-            <select
-              className={field}
-              value={context.styleLean ?? "none"}
-              onChange={(event) => setContext({ ...context, styleLean: event.target.value as Context["styleLean"] })}
-            >
-              <option value="none">No preference</option>
-              <option value="menswear">Menswear</option>
-              <option value="womenswear">Womenswear</option>
-              <option value="mix">Mix</option>
-            </select>
-          </label>
-          <label>
-            Weather or setting
-            <select
-              className={field}
-              value={context.setting ?? ""}
-              onChange={(event) =>
-                setContext({ ...context, setting: (event.target.value || undefined) as Context["setting"] })
-              }
-            >
-              <option value="">Not specified</option>
-              <option value="indoor">Indoor</option>
-              <option value="outdoor">Outdoor</option>
-              <option value="hot">Hot</option>
-              <option value="cold">Cold</option>
-              <option value="rainy">Rainy</option>
-            </select>
-          </label>
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={context.comfortFirst ?? false}
-              onChange={(event) => setContext({ ...context, comfortFirst: event.target.checked })}
-            />
-            Comfort is a priority
-          </label>
-        </div>
-      </details>
     </form>
   );
 }

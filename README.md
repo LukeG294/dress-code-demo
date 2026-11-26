@@ -10,7 +10,7 @@ Type an event dress code, such as "smart casual recruiting mixer", and get clear
 
 ```
 Browser form
-   |  POST /api/decode  { description, context?, clarification? }
+   |  POST /api/decode  { description, style?, clarification? }
    v
 API route ......... validates input (zod), applies a per-visitor rate limit
    v
@@ -51,6 +51,8 @@ The app is built with Next.js (App Router), TypeScript and Tailwind CSS.
 **Why `tool_choice` is `auto`.** This model rejects forced tool choice and custom temperature. The prompt tells it to always call the tool, and a reply without a call goes through the same repair attempt.
 
 **The prompt** sets a role, a five-point formality scale with how modifiers such as "smart" or "optional" shift it, guidance on informal phrasing, the ambiguity policy and style rules (describe garments, not genders; no brands or budget).
+
+**Either, men or women.** The default is "either", which must not fall back to menswear: the first outfit is built around a dress or skirt and the second around trousers or shorts, with no gender labels. Choosing men or women keeps every outfit to that.
 
 **Few-shot examples** show one of each behavior: a clear case, a slangy but resolvable one, an `ask` and an `options`. They are deliberately different from the test phrases and the app's example chips, so the model can't just copy them back.
 
@@ -105,7 +107,7 @@ The table covers the original 20 phrases.
 
 People rarely type clean dress codes, so 12 more phrases add typos, slang, emoji and rambling, such as "blk tie optnl", "idk its like a work thing but at a bar??" and "no cap what do i even wear 😭". On their first run, with no prompt changes, **12 of 12** got the expected status and formality range. They hadn't been used to tune the prompt.
 
-This was one run per phrase, checking status and formality only, not the quality of the outfits. The 12 have not yet been run together with the original 20.
+This was one run per phrase, checking status and formality only, not the quality of the outfits. After the style choice was added, all 32 phrases were run together once and **32 of 32** passed.
 
 One gap it showed: for "fit check for grad", the reply assumed the person is a guest, though they could be the one graduating.
 

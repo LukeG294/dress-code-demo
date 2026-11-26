@@ -24,7 +24,10 @@ When ambiguous, pick a mode:
 Always include a hedge: one outfit that works across the readings.
 
 ## Style rules
-- Describe garments, not genders, unless a style lean is given.
+- The "Style:" line says what the person wears. Never label an outfit or piece by gender.
+  - "men": every outfit and hedge uses menswear.
+  - "women": every outfit and hedge uses womenswear.
+  - "either": never default to menswear. The first outfit is built around a dress or skirt, the second around trousers or shorts, and a third can be either. Interpretations mix both. In "safeBet" and hedges, cover both, for example "Trousers or midi skirt".
 - Be practical about comfort, weather and movement.
 - Assume no brands or budget.
 - Give 2-3 outfits of 3-4 pieces each.
@@ -32,7 +35,7 @@ Always include a hedge: one outfit that works across the readings.
 ## Length
 People scan this on a phone. Write labels, not sentences.
 - headline: 6 words or fewer
-- each piece "item": 2-4 words, with no alternatives joined by "or"
+- each piece "item": 2-4 words, with no alternatives joined by "or" (except in a hedge when style is "either")
 - outfit "name": 1-3 words
 - "why", "reason", "safeBet": 10 words or fewer
 - "do" and "dont": at most 2 each, 1-3 words each
@@ -59,6 +62,15 @@ export const EXAMPLES: { input: string; result: Decode }[] = [
       formality: { level: 4, label: "Dressy" },
       outfits: [
         {
+          name: "Dark dress",
+          pieces: [
+            { garment: "dress", item: "Knee-length dark dress" },
+            { garment: "jacket", item: "Plain jacket" },
+            { garment: "shoes", item: "Closed quiet shoes" },
+          ],
+          why: "Understated and comfortable for a long service",
+        },
+        {
           name: "Dark suit",
           pieces: [
             { garment: "shirt", item: "Plain muted shirt" },
@@ -68,19 +80,10 @@ export const EXAMPLES: { input: string; result: Decode }[] = [
           ],
           why: "Respectful in almost any tradition",
         },
-        {
-          name: "Dark dress",
-          pieces: [
-            { garment: "dress", item: "Knee-length dark dress" },
-            { garment: "jacket", item: "Plain jacket" },
-            { garment: "shoes", item: "Closed quiet shoes" },
-          ],
-          why: "Understated and comfortable for a long service",
-        },
       ],
       do: ["Cover shoulders", "Check color requests"],
       dont: ["Loud prints", "Sneakers"],
-      safeBet: "Dark trousers, plain dark top, closed shoes",
+      safeBet: "Dark trousers or skirt, plain top, closed shoes",
       assumptions: ["Traditional service"],
     },
   },
@@ -92,10 +95,10 @@ export const EXAMPLES: { input: string; result: Decode }[] = [
       formality: { level: 3, label: "Polished casual" },
       outfits: [
         {
-          name: "One color",
+          name: "Slip skirt",
           pieces: [
             { garment: "knit", item: "Fine black knit" },
-            { garment: "trousers", item: "Wide-leg trousers" },
+            { garment: "skirt", item: "Satin slip skirt" },
             { garment: "boots", item: "Sleek leather boots" },
           ],
           why: "Looks deliberate with little effort",
@@ -129,7 +132,7 @@ export const EXAMPLES: { input: string; result: Decode }[] = [
         formality: { level: 2, label: "Relaxed" },
         pieces: [
             { garment: "shirt", item: "Patterned shirt" },
-            { garment: "trousers", item: "High-waisted trousers" },
+            { garment: "trousers", item: "Trousers or skirt" },
             { garment: "shoes", item: "Leather shoes" },
           ],
       },
@@ -151,7 +154,7 @@ export const EXAMPLES: { input: string; result: Decode }[] = [
         formality: { level: 3, label: "Polished casual" },
         pieces: [
             { garment: "shirt", item: "Solid-color shirt" },
-            { garment: "trousers", item: "Tailored trousers" },
+            { garment: "trousers", item: "Trousers or skirt" },
             { garment: "jewelry", item: "One standout accessory" },
           ],
       },
@@ -160,7 +163,7 @@ export const EXAMPLES: { input: string; result: Decode }[] = [
 ];
 
 const examples = EXAMPLES.map(
-  ({ input, result }) => `<dress_code>${input}</dress_code>\nrespond: ${JSON.stringify({ result })}`,
+  ({ input, result }) => `<dress_code>${input}</dress_code>\nStyle: either\nrespond: ${JSON.stringify({ result })}`,
 ).join("\n\n");
 
 export const SYSTEM_PROMPT = `${RULES}\n\n## Examples\n\n${examples}`;
@@ -168,11 +171,8 @@ export const SYSTEM_PROMPT = `${RULES}\n\n## Examples\n\n${examples}`;
 // Stops user text from closing its own tag and posing as prompt.
 const escape = (value: string) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-export function buildUserMessage({ description, context, clarification }: DecodeRequest): string {
-  const lines = [`<dress_code>${escape(description)}</dress_code>`];
-  if (context?.styleLean && context.styleLean !== "none") lines.push(`Style lean: ${context.styleLean}`);
-  if (context?.setting) lines.push(`Weather/setting: ${context.setting}`);
-  if (context?.comfortFirst) lines.push("Comfort is the priority.");
+export function buildUserMessage({ description, style, clarification }: DecodeRequest): string {
+  const lines = [`<dress_code>${escape(description)}</dress_code>`, `Style: ${style ?? "either"}`];
   if (clarification) {
     lines.push(`<question>${escape(clarification.question)}</question>`);
     lines.push(`<answer>${escape(clarification.answer)}</answer>`);

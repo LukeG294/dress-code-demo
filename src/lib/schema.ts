@@ -3,13 +3,8 @@ import { z } from "zod";
 
 export const requestSchema = z.object({
   description: z.string().trim().min(3).max(300),
-  context: z
-    .object({
-      styleLean: z.enum(["menswear", "womenswear", "mix", "none"]).optional(),
-      setting: z.enum(["indoor", "outdoor", "hot", "cold", "rainy"]).optional(),
-      comfortFirst: z.boolean().optional(),
-    })
-    .optional(),
+  // Left out means "either": the reply covers both, favoring neither.
+  style: z.enum(["men", "women"]).optional(),
   clarification: z
     .object({
       question: z.string().trim().min(1).max(300),
