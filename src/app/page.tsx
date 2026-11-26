@@ -6,11 +6,14 @@ import { DecodedResult } from "@/components/DecodedResult";
 import { DecoderForm } from "@/components/DecoderForm";
 import type { Decode, DecodeRequest } from "@/lib/schema";
 
+// The reply that asked the follow-up, kept so going back needs no retyping and no new request.
+type Asked = { result: Decode; request: DecodeRequest };
+
 type State =
   | { view: "idle" }
   | { view: "loading" }
-  | { view: "error"; message: string; request: DecodeRequest }
-  | { view: "result"; result: Decode; request: DecodeRequest };
+  | { view: "error"; message: string; request: DecodeRequest; asked?: Asked }
+  | { view: "result"; result: Decode; request: DecodeRequest; asked?: Asked };
 
 export default function Home() {
   const [state, setState] = useState<State>({ view: "idle" });
@@ -24,9 +27,9 @@ export default function Home() {
     if (top >= 0 && top < window.innerHeight * 0.4) return;
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     results.current.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
-  }, [state.view]);
+  }, [state]);
 
-  async function run(request: DecodeRequest) {
+  async function run(request: DecodeRequest, asked?: Asked) {
     setState({ view: "loading" });
     try {
       const response = await fetch("/api/decode", {
@@ -36,10 +39,15 @@ export default function Home() {
         signal: AbortSignal.timeout(65_000),
       });
       const body = await response.json();
-      if (!response.ok) return setState({ view: "error", message: body.error, request });
-      setState({ view: "result", result: body, request });
+      if (!response.ok) return setState({ view: "error", message: body.error, request, asked });
+      setState({ view: "result", result: body, request, asked });
     } catch {
-      setState({ view: "error", message: "Couldn't reach the server. Check your connection and retry.", request });
+      setState({
+        view: "error",
+        message: "Couldn't reach the server. Check your connection and retry.",
+        request,
+        asked,
+      });
     }
   }
 
@@ -53,7 +61,7 @@ export default function Home() {
       </h1>
       <p className="mt-4 mb-7 text-lg">Paste the invite wording. Get the fit.</p>
 
-      <DecoderForm loading={state.view === "loading"} onSubmit={run} />
+      <DecoderForm loading={state.view === "loading"} onSubmit={(request) => run(request)} />
 
       {/* The minimum height leaves room to scroll a short result to the top. */}
       <div
@@ -74,10 +82,20 @@ export default function Home() {
         {state.view === "error" && (
           <div role="alert" className="sticker rounded-2xl bg-tomato p-4 font-medium">
             <p>{state.message}</p>
-            <button type="button" onClick={() => run(state.request)} className="mt-2 font-bold underline">
+            <button type="button" onClick={() => run(state.request, state.asked)} className="mt-2 font-bold underline">
               Retry
             </button>
           </div>
+        )}
+
+        {(state.view === "result" || state.view === "error") && state.asked && (
+          <button
+            type="button"
+            onClick={() => setState({ view: "result", ...state.asked! })}
+            className="my-3 block text-sm font-bold underline"
+          >
+            ← Back to the question
+          </button>
         )}
 
         {state.view === "result" && (
@@ -91,7 +109,9 @@ export default function Home() {
             {state.result.status === "ambiguous" && (
               <AmbiguousResult
                 result={state.result}
-                onAnswer={(question, answer) => run({ ...state.request, clarification: { question, answer } })}
+                onAnswer={(question, answer) =>
+                  run({ ...state.request, clarification: { question, answer } }, state)
+                }
               />
             )}
             {state.result.status === "off_topic" && (

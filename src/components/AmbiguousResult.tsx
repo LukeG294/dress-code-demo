@@ -15,6 +15,8 @@ export function AmbiguousResult({
   onAnswer: (question: string, answer: string) => void;
 }) {
   const [skipped, setSkipped] = useState(false);
+  const [typing, setTyping] = useState(false);
+  const [custom, setCustom] = useState("");
   const { question, interpretations, hedge } = result;
   // In "ask" mode the question comes first; the hedge waits until it is skipped.
   const asking = result.mode === "ask" && question && !skipped;
@@ -42,8 +44,38 @@ export function AmbiguousResult({
                 {option}
               </button>
             ))}
+            <button
+              type="button"
+              aria-expanded={typing}
+              onClick={() => setTyping(!typing)}
+              className="pressable rounded-full bg-white px-4 py-2 text-sm font-bold"
+            >
+              Something else…
+            </button>
           </div>
-          <button type="button" onClick={() => setSkipped(true)} className="mt-4 text-sm font-bold underline">
+          {typing && (
+            <form
+              className="mt-4 flex gap-3"
+              onSubmit={(event) => {
+                event.preventDefault();
+                if (custom.trim()) onAnswer(question.text, custom.trim());
+              }}
+            >
+              <input
+                aria-label={question.text}
+                autoFocus
+                value={custom}
+                onChange={(event) => setCustom(event.target.value)}
+                placeholder="Type your answer"
+                maxLength={100}
+                className="sticker min-w-0 flex-1 rounded-full bg-white px-4 py-2 placeholder:text-ink/40"
+              />
+              <button type="submit" className="pressable rounded-full bg-tomato px-5 py-2 text-sm font-bold">
+                Go
+              </button>
+            </form>
+          )}
+          <button type="button" onClick={() => setSkipped(true)} className="mt-4 block text-sm font-bold underline">
             Skip, just give me a safe outfit
           </button>
         </section>
@@ -69,6 +101,12 @@ export function AmbiguousResult({
           <FormalityMeter {...hedge.formality} />
           <PieceTiles pieces={hedge.pieces} />
         </section>
+      )}
+
+      {skipped && (
+        <button type="button" onClick={() => setSkipped(false)} className="text-sm font-bold underline">
+          ← Back to the question
+        </button>
       )}
     </article>
   );

@@ -67,8 +67,10 @@ The rule: flag a phrase as ambiguous **only if the plausible readings would lead
 - **Ask:** one question settles it and the person can probably answer.
 - **Options:** they're unlikely to know, for example as a guest at someone else's event.
 - **Hedge:** always included. In `ask` mode the person can skip the question and take it.
+- **Their own words:** "Something else" takes a typed answer when no option fits.
+- **Going back:** after skipping or answering, they can return to the question without retyping or another request.
 
-There is only one clarification round. Once a question is answered, the code rejects another `ambiguous` reply, so the person can't get stuck in a loop.
+Each request has only one clarification round. Once a question is answered, the code rejects another `ambiguous` reply, so the person can't get stuck in a loop.
 
 ### Examples (real replies, abridged)
 
