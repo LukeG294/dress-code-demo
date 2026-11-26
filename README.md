@@ -1,6 +1,87 @@
 # Dress Code Decoder
 
-Turns a dress code phrase into practical guidance on what to wear, and says so when the phrase doesn't give enough to go on.
+Type an event dress code, such as "smart casual recruiting mixer", and get clear guidance on what to wear. When the phrase could mean quite different outfits, the app says so and asks a question or lays out the readings, instead of guessing.
+
+**Live:** https://dress-code-decoder-one.vercel.app
+
+![The app asking which era "nostalgic festival fits" refers to](docs/screenshot.jpg)
+
+## How it works
+
+```
+Browser form
+   |  POST /api/decode  { description, context?, clarification? }
+   v
+API route ......... validates input (zod), applies a per-visitor rate limit
+   v
+decode() .......... system prompt + user text in delimiters
+   v
+Claude ............ replies by calling the `respond` tool
+   v
+zod ............... invalid or missing call? one repair attempt, then an error
+   v
+UI ................ decoded | ambiguous | off_topic
+```
+
+The model is `claude-sonnet-5-5` through the Anthropic Messages API, using the official TypeScript SDK. The key stays on the server. Set `ANTHROPIC_MODEL` to try another model.
+
+The app is built with Next.js (App Router), TypeScript and Tailwind CSS.
+
+| File | What's in it |
+|---|---|
+| `src/lib/schema.ts` | The contract shared by the API, the model and the UI |
+| `src/lib/prompt.ts` | System prompt, ambiguity policy and examples |
+| `src/lib/anthropic.ts` | Model call, validation and repair retry |
+| `src/lib/rateLimit.ts` | Per-visitor request limit |
+| `src/app/api/decode/route.ts` | The one API endpoint |
+
+## Prompt and output-format design
+
+**Structured output through a tool.** The UI needs to know which of three cases it has, so the model answers by calling one tool whose input follows a schema:
+
+- `decoded`: a one-line translation, formality from 1 to 5, two or three outfits, do and don't lists, a safe bet and the assumptions made.
+- `ambiguous`: why it's unclear, then either a question with options or two to three interpretations, plus a "hedge" outfit that works across them.
+- `off_topic`: a short redirect.
+
+**Two layers of checking.** Strict mode constrains the shape of the tool input. It can't express limits such as "two or three outfits" or "`ask` needs a question", so zod checks those. A failed check is sent back to the model once with the error.
+
+**Why `tool_choice` is `auto`.** This model rejects forced tool choice and custom temperature. The prompt tells it to always call the tool, and a reply without a call goes through the same repair attempt.
+
+**The prompt** sets a role, a five-point formality scale with how modifiers such as "smart" or "optional" shift it, guidance on informal phrasing, the ambiguity policy and style rules (describe garments, not genders; no brands or budget).
+
+**Few-shot examples** show one of each behavior: a clear case, a slangy but resolvable one, an `ask` and an `options`. They are deliberately different from the test phrases and the app's example chips, so the model can't just copy them back.
+
+**Untrusted input.** The user's text is wrapped in tags with angle brackets escaped, and the prompt treats it as data. Anything that isn't about what to wear returns `off_topic`.
+
+**Cost.** The tool definition and system prompt are cached, and thinking effort is set to low.
+
+## Handling vague input
+
+The rule: flag a phrase as ambiguous **only if the plausible readings would lead to materially different outfits**. Wording that is vague but lands on much the same outfit is decoded, with the assumptions shown. A reference to an unnamed era or style ("retro") always counts as materially different.
+
+- **Ask:** one question settles it and the person can probably answer.
+- **Options:** they're unlikely to know, for example as a guest at someone else's event.
+- **Hedge:** always included. In `ask` mode the person can skip the question and take it.
+
+There is only one clarification round. Once a question is answered, the code rejects another `ambiguous` reply, so the person can't get stuck in a loop.
+
+### Examples (real replies, abridged)
+
+**Ask**
+
+> **In:** nostalgic festival fits  
+> **Why unclear:** "Nostalgic" points to a past era or aesthetic without naming one, and each choice needs different clothes.  
+> **Question:** Which era or vibe should the nostalgia be? `1970s boho` `1990s grunge` `Y2K` `Not sure`  
+> **Hedge:** Relaxed jeans or shorts, a vintage-style graphic tee or soft printed top, a light layer and broken-in shoes.
+
+**Options**
+
+> **In:** dress to impress  
+> **Why unclear:** It doesn't say what kind of event it is.  
+> **Night out or party:** a sharp outfit with a bold color, shine or a statement piece.  
+> **Professional impression:** tailored, neat pieces in classic colors.  
+> **Dressy occasion:** a cocktail-level dress or suit.  
+> **Hedge:** Tailored dark trousers or a knee-length dress, a crisp top or fitted jacket, polished shoes and one standout accessory.
 
 ## Evals
 
@@ -20,3 +101,35 @@ Turns a dress code phrase into practical guidance on what to wear, and says so w
 **Known variance:** "festive" occasionally comes back as a clarifying question, which accounts for the 19/20 run.
 
 The formality scale in the prompt names several common dress codes that are also test phrases, so the clear formal and casual cases are the easiest ones.
+
+## Run locally
+
+Needs Node 22 or newer and an [Anthropic API key](https://console.anthropic.com/).
+
+```bash
+npm install
+cp .env.example .env.local   # then add your ANTHROPIC_API_KEY
+npm run dev                  # http://localhost:3000
+```
+
+```bash
+npm test           # unit tests, no API calls
+npm run typecheck
+npm run build
+npm run eval       # makes 20 billed API calls
+```
+
+## Limitations
+
+- The rate limit (20 requests per 10 minutes per visitor) is held in memory, so it resets on restart and isn't shared between server instances. An account spend limit is the real cap.
+- Evals check status and formality, not whether the outfit advice is good.
+- Replies vary between runs, and full outfit answers take several seconds.
+
+## What I'd build next
+
+- **Learn from use:** collect "was this helpful?" feedback and see which clarifying questions people skip.
+- **Ground the slang:** retrieve real dress-code usage from event invites and forums.
+- **Better evals:** more ambiguous phrases, repeated runs and a rubric for the quality of advice.
+- **Faster answers:** stream responses and cache common phrases.
+- **Less typing:** fill in weather from location and plan several events in one day.
+- **Personal:** suggestions based on what someone already owns.
