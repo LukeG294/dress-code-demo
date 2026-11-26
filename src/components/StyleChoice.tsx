@@ -4,8 +4,8 @@ type Style = DecodeRequest["style"];
 
 const CHOICES: { value: Style; label: string }[] = [
   { value: undefined, label: "Either" },
-  { value: "men", label: "Men" },
   { value: "women", label: "Women" },
+  { value: "men", label: "Men" },
 ];
 
 // Real radio buttons underneath, so keyboard and screen readers work.

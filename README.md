@@ -52,7 +52,7 @@ The app is built with Next.js (App Router), TypeScript and Tailwind CSS.
 
 **The prompt** sets a role, a five-point formality scale with how modifiers such as "smart" or "optional" shift it, guidance on informal phrasing, the ambiguity policy and style rules (describe garments, not genders; no brands or budget).
 
-**Either, men or women.** The default is "either", which must not fall back to menswear: the first outfit is built around a dress or skirt and the second around trousers or shorts, with no gender labels. Choosing men or women keeps every outfit to that.
+**Either, women or men.** The default is "either", which must not fall back to menswear: the first outfit is built around a dress or skirt and the second around trousers or shorts, with no gender labels. Choosing women or men keeps every outfit to that.
 
 **Few-shot examples** show one of each behavior: a clear case, a slangy but resolvable one, an `ask` and an `options`. They are deliberately different from the test phrases and the app's example chips, so the model can't just copy them back.
 
