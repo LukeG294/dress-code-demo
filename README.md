@@ -50,8 +50,8 @@ Read the score with care: two expected results were changed after seeing the out
 
 ## What I'd build next
 
-- **Bring in the group chat:** share the decoded dress code so friends can weigh in.
-- **Judge the advice:** let people rate or comment on a result, so quality is judged by those wearing it. Back that up with a rubric, more ambiguous phrases and repeated runs.
+- **Bring in the group chat:** share the decoded dress code so friends can weigh in (polished share flow with a link to the decoder)
+- **Judge the advice:** let people rate or comment on a result, so quality is judged by those wearing it.
 - **Learn real language:** see which questions people skip or answer in their own words, and use that to improve the decoding.
 
 ## Run locally
