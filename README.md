@@ -4,8 +4,6 @@ Type a dress code like "smart casual recruiting mixer" and get clear guidance on
 
 **Live:** https://dress-code-decoder-one.vercel.app
 
-![A result showing a formality meter, outfit tabs and an icon tile for each garment](docs/screenshot.jpg)
-
 ## How it works
 
 ```
