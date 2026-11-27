@@ -27,10 +27,12 @@ Start with [`prompt.ts`](src/lib/prompt.ts), [`schema.ts`](src/lib/schema.ts) an
 
 A phrase is flagged only if its plausible readings would lead to **materially different outfits**. Otherwise it is decoded, with assumptions listed.
 
-| Mode | When | Example |
+| Mode | When | What they see |
 |---|---|---|
-| Ask | The person can likely answer | "nostalgic festival fits" → which era? |
-| Options | They may not know | "themed party, host says go all out" → a few readings |
+| Ask | The person can likely answer | One question, such as "which era?" for "nostalgic festival fits" |
+| Options | They may not know | Two or three readings, each with its own outfit |
+
+Claude writes the question, choices and readings for each phrase, and picks the mode, so they can vary between runs.
 
 - Every ambiguous reply includes a **hedge** outfit that works either way.
 - People can type their own answer, skip the question, or go back and try another.
