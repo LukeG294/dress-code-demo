@@ -46,12 +46,6 @@ What it caught:
 
 Read the score with care: two expected results were changed after seeing the output ("festive" and "come as you are but classy" now count as clear), some rules were written to fix test phrases, and replies vary between runs. It does not judge whether the outfit advice is good.
 
-## What I'd build next
-
-- **Bring in the group chat:** share the decoded dress code so friends can weigh in.
-- **Judge the advice:** a quality rubric, more ambiguous phrases and repeated runs.
-- **Learn real language:** see which questions people skip or answer in their own words, and use that to improve the decoding.
-
 ## Run locally
 
 Needs Node 22+ and an Anthropic API key.
@@ -64,4 +58,4 @@ npm run dev
 
 `npm test` runs offline. `npm run eval` makes 32 billed API calls.
 
-The rate limit (20 requests per 10 minutes) is held in memory per server instance, so an account spend limit is the real cap.
+The rate limit (20 requests per 10 minutes) is held in memory per server instance.
